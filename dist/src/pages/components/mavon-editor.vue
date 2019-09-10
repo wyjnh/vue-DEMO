@@ -1,11 +1,15 @@
 <template>
     <div>
-        mavon
+        <mavon-editor />
     </div>
 </template>
 <script>
 export default {
-    
+    data:function(){
+        return {
+            value:"d"
+        }
+    }
 }
 </script>
 <style scoped>
