@@ -10,6 +10,9 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "koa": "^2.8.1",
+    "koa-cors": "^0.0.16",
+    "koa-router": "^7.4.0",
     "mavon-editor": "^2.7.5",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
