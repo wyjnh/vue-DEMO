@@ -3,12 +3,15 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+// 引入vuex
+import store from './store'
 
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,// 引入vuex
   router,
   components: { App },
   template: '<App/>'
