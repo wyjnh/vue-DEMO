@@ -37,7 +37,9 @@ home.get('/getdata', async ( ctx )=>{
 let router = new Router()
 router.use('/', home.routes(), home.allowedMethods())
 // 路由分模块
-router.use('/stu',require('./routers/student'))
+router.use('/stu',require('./routers/student'));
+router.use('/doc',require('./routers/doc'));
+
 
 // 加载路由中间件
 app.use(router.routes()).use(router.allowedMethods())

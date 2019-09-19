@@ -6,7 +6,7 @@ const pool  = mysql.createPool({
     host     : 'localhost',   // 数据库地址
     user     : 'root',    // 数据库用户
     password : 'admin',   // 数据库密码
-    database : 'wangDB'  // 选中数据库
+    database : 'localdb'  // 选中数据库
 })
 
 // 封装sql操作
