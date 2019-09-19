@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "koa": "^2.8.1",
+    "koa-body": "^4.1.1",
     "koa-bodyparser": "^4.2.1",
     "koa-json": "^2.0.2",
     "koa-jwt": "^3.3.2",

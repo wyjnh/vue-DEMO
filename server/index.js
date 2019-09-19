@@ -1,7 +1,26 @@
 const Koa = require('koa')
+
 const fs = require('fs')
+const path = require('path');
+const koaBody = require('koa-body');
+const static = require('koa-static');
+
 const bodyParser = require('koa-bodyparser')
 const app = new Koa()
+
+/* 
+  koa-body 对应的API及使用 看这篇文章 http://www.ptbird.cn/koa-body.html
+  或者看 github上的官网 https://github.com/dlau/koa-body
+*/
+app.use(koaBody({
+  multipart: true, // 支持文件上传
+  formidable: {
+    maxFieldsSize: 2 * 1024 * 1024, // 最大文件为2兆
+    multipart: true // 是否支持 multipart-formdate 的表单
+  }
+}));
+
+app.use(static(path.join(__dirname)));
 
 // 使用ctx.body解析中间件
 app.use(bodyParser())
@@ -37,9 +56,8 @@ home.get('/getdata', async ( ctx )=>{
 let router = new Router()
 router.use('/', home.routes(), home.allowedMethods())
 // 路由分模块
-router.use('/stu',require('./routers/student'));
 router.use('/doc',require('./routers/doc'));
-
+router.use('/stream',require('./routers/stream'));
 
 // 加载路由中间件
 app.use(router.routes()).use(router.allowedMethods())
