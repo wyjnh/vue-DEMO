@@ -16,7 +16,12 @@ app.use(koaBody({
   multipart: true, // 支持文件上传
   formidable: {
     maxFieldsSize: 2 * 1024 * 1024, // 最大文件为2兆
-    multipart: true // 是否支持 multipart-formdate 的表单
+    multipart: true, // 是否支持 multipart-formdate 的表单
+    keepExtensions: true,    // 保持文件的后缀
+    onFileBegin:(name,file) => { // 文件上传前的设置
+      // console.log(`name: ${name}`);
+      // console.log(file);
+    },
   }
 }));
 
