@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>文件上传</title>
+</head>
+<body>
+  <form action="http://localhost:3000/stream/upload" method="post" enctype="multipart/form-data">
+    <div>
+      <input type="file" name="file">
+    </div>
+    <div>
+      <input type="submit" value="提交"/>
+    </div>
+  </form>
+  <br>
+  <div>
+      <button onclick="fileLoad()">文件下载</button>
+      <!-- 在iframe里面下载，因此页面看不到跳动的感觉了 -->
+      <iframe name="iframeId" style="display:none"></iframe>
+    </div>
+    <script type="text/javascript">
+      function fileLoad() {
+        // 打开接口地址
+        window.open('/stream/static/template.jpg', 'iframeId');
+      }
+    </script>
+</body>
+</html>

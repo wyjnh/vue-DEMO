@@ -3,16 +3,18 @@ const Router = require('koa-router');
 const router = new Router();
 const path = require('path');
 const fs = require('fs')
+const send = require('koa-send');
   
 // 访问接口  指向 html 页面
 router.get('/', async ctx => {
     // 设置头类型, 如果不设置，会直接下载该页面
     ctx.type = 'html';
     // 读取文件
-    const pathUrl = path.join(__dirname, '../../static/upload.html');
+    const pathUrl = path.join(__dirname, '../../static/template/upload.html');
     ctx.body = fs.createReadStream(pathUrl);
 });
 
+// 返回图片地址的url
 const uploadUrl = "http://localhost:3000/stream/static/upload";
 // 上传图片
 router.post('/upload',async (ctx) => {
@@ -22,7 +24,7 @@ router.post('/upload',async (ctx) => {
   // 读取文件流
   const fileReader = fs.createReadStream(file.path);
   //  组成存放 图片 文件夹的绝对路径
-  const filePath = path.join(__dirname, '../../static/upload');
+  const filePath = path.join(__dirname, '../../static/images');
   // 组装成绝对路径
   const fileResource = filePath + `/${file.name}`;
 
@@ -53,5 +55,13 @@ router.post('/upload',async (ctx) => {
     };
   }
 });
+
+// 下载服务端文件
+router.get('/static/:name', async (ctx) => {
+    const name = ctx.params.name;
+    const path = `static/images/${name}`;
+    ctx.attachment(path);
+    await send(ctx, path);
+  });
 
 module.exports = router.routes();
