@@ -60,7 +60,6 @@ router.post('/createone', async ctx => {
         }
     }
 });
-
 // 删 根据id删除doc 存在删除 不存在报错
 router.post('/deleteone',async (ctx)=>{
     let doc_id = ctx.request.body.doc_id;
@@ -97,7 +96,6 @@ router.post('/updateone',async (ctx)=>{
     }
     
 })
-
 // 查 根据查询字段和值查询
 router.post('/selectone',async (ctx)=>{
     let key = ctx.request.body.key || "";
@@ -117,4 +115,21 @@ router.post('/selectone',async (ctx)=>{
     }
         
 })
+// 查 获取所有doc信息
+router.get('/selectall',async (ctx)=>{
+    let resdata = await selectDoc("","");
+    if(resdata.length > 0){
+        ctx.body={
+            code : 200,
+            msg: "获取成功",
+            data : resdata
+        }
+    }else{
+        ctx.body={
+            code : 300,
+            msg: "无查询记录",
+        }
+    }   
+})
+
 module.exports = router.routes();

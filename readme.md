@@ -17,5 +17,6 @@
 ## 接口
 |  url   | methods  | 参数 | 备注 |
 |  ----  | ----  | ----  | ----  |
-| /log/login  | get | 无 |  登录 |
-| /log/logout  | get | 无 |  登出 |
+| / login  | get | 无 |  登录 |
+| / logout  | get | 无 |  登出 |
+| /doc/selectall | get | 无 | 获取所有doc信息 |

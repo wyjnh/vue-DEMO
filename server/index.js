@@ -1,6 +1,5 @@
 const Koa = require('koa')
 const session = require('koa-session')
-const fs = require('fs')
 const path = require('path');
 const koaBody = require('koa-body');
 const static = require('koa-static');
@@ -42,31 +41,46 @@ app.use(bodyParser())
 
 
 //定义允许直接访问的url
-const allowpage = ['/log/login','/log/logout']
-// 拦截器
-app.use(async (ctx,next) => {
+const allowpage = ['/log/login','/log/logout','/login']
+function localFilter(ctx){
   let url =  ctx.url
+  console.log('登录: ',ctx.session)
   if((ctx.session.islogin && ctx.session.islogin == true ) || allowpage.indexOf(url) > -1){
     // 已经登录或者是允许直接访问的url
     console.log('当前地址可直接访问')
-    await next()
   }else {
     // 没有登录
+    console.log('当前地址不可直接访问 重定向')
     ctx.redirect("http://fanyi.sogou.com/");
   }
+}
+// 拦截器
+app.use(async (ctx,next) => {
+  localFilter(ctx);
+  if (ctx.url === '/login') {
+    ctx.session.islogin = true
+    ctx.body = {
+        msg: '登录成功'
+    }
+  }
+  if (ctx.url === '/logout') {
+    ctx.session.islogin = false
+    ctx.body = {
+        msg: '注销成功'
+    }
+  }
+  await next();
 })
-
 
 const Router = require('koa-router')
 // 装载所有子路由
 let router = new Router()
-// 路由分模块
 // 数据库操作
 router.use('/doc',require('./routers/doc'));
 // 文件流操作
 router.use('/stream',require('./routers/stream'));
 // 登录验证
-router.use('/log',require('./routers/loginout'))
+// router.use('/log',require('./routers/loginout'))
 
 // 加载路由中间件
 app.use(router.routes()).use(router.allowedMethods())
