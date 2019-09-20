@@ -40,12 +40,20 @@ app.use(static(path.join(__dirname)));
 // 使用ctx.body解析中间件
 app.use(bodyParser())
 
-// 在所有接口前放上session
+
+//定义允许直接访问的url
+const allowpage = ['/log/login','/log/logout']
+// 拦截器
 app.use(async (ctx,next) => {
-  let n = ctx.session.views || 0;
-  ctx.session.views = ++n;
-  console.log(ctx.session)
-  await next()
+  let url =  ctx.url
+  if((ctx.session.islogin && ctx.session.islogin == true ) || allowpage.indexOf(url) > -1){
+    // 已经登录或者是允许直接访问的url
+    console.log('当前地址可直接访问')
+    await next()
+  }else {
+    // 没有登录
+    ctx.redirect("http://fanyi.sogou.com/");
+  }
 })
 
 
@@ -57,6 +65,8 @@ let router = new Router()
 router.use('/doc',require('./routers/doc'));
 // 文件流操作
 router.use('/stream',require('./routers/stream'));
+// 登录验证
+router.use('/log',require('./routers/loginout'))
 
 // 加载路由中间件
 app.use(router.routes()).use(router.allowedMethods())
