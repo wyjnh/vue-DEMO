@@ -22,6 +22,7 @@
 
 ## doc相关操作接口
 |  url   | methods  | 参数 | 备注 |
+|  ----  | ----  | ----  | ----  |
 | /doc/selectall | get | 无 | 获取所有doc信息 |
 | /doc/deleteone | post | doc_id：1 | 删除 根据doc_id |
 | /doc/createone | post | title:"",author:"",content:"" | 添加新的doc |
