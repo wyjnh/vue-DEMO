@@ -1,6 +1,7 @@
 const Koa = require('koa')
 const session = require('koa-session')
 const path = require('path');
+const cors = require('koa2-cors')
 const koaBody = require('koa-body');
 const static = require('koa-static');
 const bodyParser = require('koa-bodyparser')
@@ -10,7 +11,7 @@ const app = new Koa()
 app.keys = ["some mother fucker"] // 这个是配合signed属性的签名key
 const session_config = {
   key: 'koa:sess', /**  cookie的key。 (默认是 koa:sess) */
-  maxAge: 4000,   /**  session 过期时间，以毫秒ms为单位计算 。*/
+  maxAge: 1000*60*60*24,   /**  session 过期时间，以毫秒ms为单位计算 。*/
   autoCommit: true, /** 自动提交到响应头。(默认是 true) */
   overwrite: true, /** 是否允许重写 。(默认是 true) */
   httpOnly: true, /** 是否设置HttpOnly，如果在Cookie中设置了"HttpOnly"属性，那么通过程序(JS脚本、Applet等)将无法读取到Cookie信息，这样能有效的防止XSS攻击。  (默认 true) */
@@ -19,7 +20,7 @@ const session_config = {
   renew: false, /** 是否在Session快过期时刷新Session的有效期。(默认是 false) */
 };
 app.use(session(session_config, app));
-
+app.use(cors())
 // 文件上传
 app.use(koaBody({
   multipart: true, // 支持文件上传
@@ -35,33 +36,30 @@ app.use(koaBody({
 }));
 // 静态资源
 app.use(static(path.join(__dirname)));
-
 // 使用ctx.body解析中间件
 app.use(bodyParser())
 
+const { query } = require('./util/db')
 
-//定义允许直接访问的url
+// 拦截器
+// 定义允许直接访问的url
 const allowpage = ['/log/login','/log/logout','/login']
 function localFilter(ctx){
   let url =  ctx.url
-  console.log('登录: ',ctx.session)
   if((ctx.session.islogin && ctx.session.islogin == true ) || allowpage.indexOf(url) > -1){
     // 已经登录或者是允许直接访问的url
     console.log('当前地址可直接访问')
   }else {
     // 没有登录
     console.log('当前地址不可直接访问 重定向')
-    ctx.redirect("http://fanyi.sogou.com/");
+    ctx.redirect("/login");
   }
 }
 // 拦截器
 app.use(async (ctx,next) => {
   localFilter(ctx);
-  if (ctx.url === '/login') {
-    ctx.session.islogin = true
-    ctx.body = {
-        msg: '登录成功'
-    }
+  if (ctx.url === '/login' && ctx.method == "POST") {
+    loginAction(ctx);
   }
   if (ctx.url === '/logout') {
     ctx.session.islogin = false
@@ -88,3 +86,21 @@ app.use(router.routes()).use(router.allowedMethods())
 app.listen(3000, () => {
   console.log('[demo] route-use-middleware is starting at port 3000')
 })
+
+function loginAction(ctx){
+  let name = ctx.request.body.name , password = ctx.request.body.password ; 
+    let sql = `SELECT * FROM user_table WHERE password='${password}' AND name='${name}'`;
+    let result = await query( sql )
+    if(result.length > 0){
+      ctx.session.islogin = true
+      ctx.body = {
+          code: 200,
+          msg : '登录成功'
+      }
+    }else{
+      ctx.body = {
+        code: 300,
+        msg : '用户不存在'
+      }
+    }
+}

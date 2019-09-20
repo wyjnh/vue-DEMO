@@ -7,6 +7,7 @@
 * koa-body 文件上传到指定文件夹 下载服务端文件
 * koa-session
 * 登录登出session验证 redirect重定向
+* cors 跨域
 
 ## view 功能介绍
 * vuecli
@@ -28,3 +29,12 @@
 | /doc/createone | post | title:"",author:"",content:"" | 添加新的doc |
 | /doc/selectone | post | key:"",val:"" | 条件查询doc信息(一个条件) |
 | /doc/updateone | post | title = '', content = '' , author = '' doc_id = '' | 修改doc信息 |
+
+
+## 提交记录
+1. 
+- server设置cors 
+- 登录注销接口写在main接口的ctx
+- 优化登录接口 查找数据库是否有改用户
+- element-ui 全局引入
+- view 登录页面框架逻辑完成

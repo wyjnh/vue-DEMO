@@ -1,7 +1,7 @@
 // 数据库操作 stutable
 const Router = require('koa-router');
 const router = new Router();
-const { query } = require('../../async-db')
+const { query } = require('../../util/db')
 // 判断是否存在
 async function hasNewDoc(key,val) {
     let sql = `SELECT COUNT(*) as count FROM doc_table WHERE ${key} = '${val}'`
