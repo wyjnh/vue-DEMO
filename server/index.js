@@ -1,17 +1,27 @@
 const Koa = require('koa')
-
+const session = require('koa-session')
 const fs = require('fs')
 const path = require('path');
 const koaBody = require('koa-body');
 const static = require('koa-static');
-
 const bodyParser = require('koa-bodyparser')
 const app = new Koa()
 
-/* 
-  koa-body 对应的API及使用 看这篇文章 http://www.ptbird.cn/koa-body.html
-  或者看 github上的官网 https://github.com/dlau/koa-body
-*/
+// 设置session
+app.keys = ["some mother fucker"] // 这个是配合signed属性的签名key
+const session_config = {
+  key: 'koa:sess', /**  cookie的key。 (默认是 koa:sess) */
+  maxAge: 4000,   /**  session 过期时间，以毫秒ms为单位计算 。*/
+  autoCommit: true, /** 自动提交到响应头。(默认是 true) */
+  overwrite: true, /** 是否允许重写 。(默认是 true) */
+  httpOnly: true, /** 是否设置HttpOnly，如果在Cookie中设置了"HttpOnly"属性，那么通过程序(JS脚本、Applet等)将无法读取到Cookie信息，这样能有效的防止XSS攻击。  (默认 true) */
+  signed: true, /** 是否签名。(默认是 true) */
+  rolling: true, /** 是否每次响应时刷新Session的有效期。(默认是 false) */
+  renew: false, /** 是否在Session快过期时刷新Session的有效期。(默认是 false) */
+};
+app.use(session(session_config, app));
+
+// 文件上传
 app.use(koaBody({
   multipart: true, // 支持文件上传
   formidable: {
@@ -24,44 +34,28 @@ app.use(koaBody({
     },
   }
 }));
-
+// 静态资源
 app.use(static(path.join(__dirname)));
 
 // 使用ctx.body解析中间件
 app.use(bodyParser())
-const Router = require('koa-router')
 
-let home = new Router()
-
-// 子路由1 获取get请求参数
-home.get('/getdata', async ( ctx )=>{
-    let url = ctx.url
-    // 从上下文的request对象中获取
-    let request = ctx.request
-    let req_query = request.query
-    let req_querystring = request.querystring
-  
-    // 从上下文中直接获取
-    let ctx_query = ctx.query
-    let ctx_querystring = ctx.querystring
-  
-    ctx.body = {
-      url,
-      req_query,
-      req_querystring,
-      ctx_query,
-      ctx_querystring
-    }
-}).post('/postdata', async ( ctx )=>{
-    let postData = ctx.request.body
-    ctx.body = postData
+// 在所有接口前放上session
+app.use(async (ctx,next) => {
+  let n = ctx.session.views || 0;
+  ctx.session.views = ++n;
+  console.log(ctx.session)
+  await next()
 })
 
+
+const Router = require('koa-router')
 // 装载所有子路由
 let router = new Router()
-router.use('/', home.routes(), home.allowedMethods())
 // 路由分模块
+// 数据库操作
 router.use('/doc',require('./routers/doc'));
+// 文件流操作
 router.use('/stream',require('./routers/stream'));
 
 // 加载路由中间件
