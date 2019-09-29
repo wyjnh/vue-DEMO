@@ -17,7 +17,8 @@ export default new Router({
   routes: [
     {
       path:"/",
-      component:LoginPage,
+      // component:LoginPage,
+      redirect:"/doclist"
     },
     {
       path:"/login",

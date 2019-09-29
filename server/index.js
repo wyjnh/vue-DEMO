@@ -56,19 +56,19 @@ function localFilter(ctx){
   }
 }
 // 拦截器
-app.use(async (ctx,next) => {
-  localFilter(ctx);
-  if (ctx.url === '/login' && ctx.method == "POST") {
-    loginAction(ctx);
-  }
-  if (ctx.url === '/logout') {
-    ctx.session.islogin = false
-    ctx.body = {
-        msg: '注销成功'
-    }
-  }
-  await next();
-})
+// app.use(async (ctx,next) => {
+//   localFilter(ctx);
+//   if (ctx.url === '/login' && ctx.method == "POST") {
+//     loginAction(ctx);
+//   }
+//   if (ctx.url === '/logout') {
+//     ctx.session.islogin = false
+//     ctx.body = {
+//         msg: '注销成功'
+//     }
+//   }
+//   await next();
+// })
 
 const Router = require('koa-router')
 // 装载所有子路由
@@ -80,6 +80,8 @@ router.use('/stream',require('./routers/stream'));
 // 登录验证
 // router.use('/log',require('./routers/loginout'))
 
+router.use('/fanyi',require('./routers/fanyi'))
+
 // 加载路由中间件
 app.use(router.routes()).use(router.allowedMethods())
 
@@ -87,7 +89,7 @@ app.listen(3000, () => {
   console.log('[demo] route-use-middleware is starting at port 3000')
 })
 
-function loginAction(ctx){
+async function loginAction(ctx){
   let name = ctx.request.body.name , password = ctx.request.body.password ; 
     let sql = `SELECT * FROM user_table WHERE password='${password}' AND name='${name}'`;
     let result = await query( sql )
