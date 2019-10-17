@@ -35,6 +35,21 @@
                     this.docList_isfo = response.data.data
                 }
             });
+            let json=[]
+            for(let i=10;i<51;i++){
+                json.push({
+                    "title": "nike"+i,
+                    "author": "author"+i,
+                    "content": "content"+i
+                })
+            }
+            Axios({
+            method: 'post',
+            url: 'http://localhost:3000/doc/addDocArr',
+            data:json
+            }).then(response=>{
+                console.log(response)
+            });
       }
     }
   </script>

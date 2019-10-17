@@ -15,6 +15,18 @@ async function createNewDoc(title,author,content) {
     let result = await query( sql )
     return result
 }
+// 多组插入
+async function addDocList(docArr) {
+    let arrStr = "";
+    docArr.forEach((item,index)=>{
+        arrStr += index == 0 ? "":","
+        arrStr+= `('${item.title}','${item.author}','${item.content}')`
+    })
+    let sql = `INSERT INTO doc_table (title,author,content) VALUES ${arrStr}`;
+    let result = await query( sql )
+    return result
+}
+
 // 删除
 async function deleteNewDoc(key,val) {
     let sql = `DELETE FROM doc_table WHERE ${key} = '${val}'`;
@@ -38,12 +50,18 @@ async function updateDoc(obj) {
 }
 
 
-// 增 添加新的doc         title重复报300
+// 增 添加新的doc         title重复报300  有必填为空 301
 router.post('/createone', async ctx => {
     let title = ctx.request.body.title || "",
         author = ctx.request.body.author || "",
         content = ctx.request.body.content || "";
-    let countNum = await hasNewDoc('title',title)
+    if(title==""||author==""||content==""){
+        ctx.body={
+            code : 301,
+            msg : "有必填选项为空"
+        }
+    }else{
+        let countNum = await hasNewDoc('title',title)
     if(countNum > 0 ){
         ctx.body={
             code : 300,
@@ -55,11 +73,34 @@ router.post('/createone', async ctx => {
         if(res.affectedRows == 1){
             ctx.body={
                 code : 200,
-                msg : "添加成功"
+                msg : "添加成功",
+                data:ctx.request.body
             }
         }
     }
+    }
 });
+// 增 添加多个新的doc  301 数据为空
+router.post('/addDocArr', async ctx => {
+    let docArr = ctx.request.body;
+    if(docArr.length){
+        let res = await addDocList(docArr)
+        if(res.affectedRows){
+            ctx.body={
+                code : 200,
+                msg : "插入成功",
+                affectedRows:res.affectedRows
+            }
+        }
+    }else{
+        ctx.body={
+            code : 301,
+            msg : "有必填选项为空",
+            data:ctx.request.body
+        }
+    }
+});
+
 // 删 根据id删除doc 存在删除 不存在报错
 router.post('/deleteone',async (ctx)=>{
     let doc_id = ctx.request.body.doc_id;
@@ -132,4 +173,30 @@ router.get('/selectall',async (ctx)=>{
     }   
 })
 
+// 分页查询 page 第几页  pageSize 每页大小 300失败 200成功
+router.post('/selectbypage',async (ctx)=>{
+    let page = ctx.request.body.page || "";
+    let pageSize = ctx.request.body.pageSize || 10;
+    let start = (page-1) * pageSize
+    let resdata = await selectDocByPage(start,pageSize);
+    if(resdata.length){
+        ctx.body={
+            code : 200,
+            msg: "获取成功",
+            data : resdata
+        }
+    }else{
+        ctx.body={
+            code : 300,
+            msg: "查询失败",
+        }
+    }
+   
+})
+// 获取指定
+async function selectDocByPage(start,pageSize) {
+    let sql = `SELECT * FROM doc_table limit ${pageSize} offset ${start}`
+    let res = await query( sql )
+    return res
+}
 module.exports = router.routes();
